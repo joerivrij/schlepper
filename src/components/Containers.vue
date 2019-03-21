@@ -1,19 +1,17 @@
 <template>
   <!-- Containers -->
-  <article id="container" class="wrapper style2">
-    <div class="container">
-      <header>
-        <p>A listing of the current known containers</p>
-      </header>
-  <div class="containers">
-    <button id="getContainers" style="background-color:#2196F3;" v-on:click="getAllContainers">Get Containers</button>
+  <div class="container" id="containerDashboard">
+    <header>
+      <h2>Container Dashboard</h2>
+    </header>
+    <button id="getContainers" class="" v-on:click="getAllContainers">Get Containers</button>
     <h2 v-if="checked == true">Running</h2>
     <h2 v-else>All</h2>
     <label class="switch">
       <input v-model="checked" type="checkbox" id="checkbox" >
       <span class="slider round"></span>
     </label>
-      <div class="tbl-header">
+      <div class="tbl-header tbl-header-container">
         <table cellpadding="0" cellspacing="0" border="0">
           <thead>
       <tr>
@@ -21,23 +19,35 @@
         <th>Id</th>
         <th>State</th>
         <th>Port</th>
+        <th>Actions</th>
       </tr>
           </thead>
         </table>
-    <div class="tbl-content">
+    <div class="tbl-content tbl-content-container">
       <table cellpadding="0" cellspacing="0" border="0">
         <tbody>
-      <tr v-for="container of containers">
-        <td>{{container.Image.split(':')[0]}}</td>
-        <td>{{container.Id.substring(0, 11)}}</td>
-        <td>{{container.State}}</td>
-        <td v-if="container.Ports == false">
-          none
-        </td>
-        <td v-if="container.Ports[0]">
-          {{container.Ports[0].PrivatePort}}
-        </td>
-      </tr>
+        <tr v-for="container of containers"
+        :class="{container_running: container.State === 'running',
+                 container_stopped: container.State !== 'running'}">
+          <td>{{container.Image.split(':')[0]}}</td>
+          <td>
+            <router-link
+              tag="a"
+              :to="{name: 'containerDetail', params: { containerId: container.Id}}">
+              {{container.Id.substring(0, 11)}}
+            </router-link>
+          </td>
+          <td>{{container.State}}</td>
+          <td v-if="container.Ports == false">
+            none
+          </td>
+          <td v-if="container.Ports[0]">
+            {{container.Ports[0].PrivatePort}}
+          </td>
+          <td class="action-hovers">
+            <i v-if="container.State !== 'exited'" @click='stopContainer(container.Id)' style="margin-right: 1rem;" class="fa fa-stop fa-lg"></i> <i style="margin-right: 1rem;" class="fa fa-random fa-lg" @click='restartContainer(container.Id)'></i> <i v-if="container.State !== 'running'" class="fa fa-play fa-lg" @click='startContainer(container.Id)'></i>
+          </td>
+        </tr>
         </tbody>
     </table>
     </div>
@@ -46,50 +56,48 @@
     <div class="row aln-center">
       <div class="col-4 col-6-medium col-12-small">
         <section class="box style1">
-          <img class="image" src="static/images/gopher.png"/>
+          <img class="image" src="../assets/images/gopher.png"/>
           <h3>Golang</h3>
         </section>
       </div>
       <div class="col-4 col-6-medium col-12-small">
         <section class="box style1">
-          <img class="image" src="static/images/nodejs.png"/>
+          <img class="image" src="../assets/images/nodejs.png"/>
           <h3>Nodejs</h3>
         </section>
       </div>
       <div class="col-4 col-6-medium col-12-small">
         <section class="box style1">
-          <img class="image" src="static/images/python.png"/>
+          <img class="image" src="../assets/images/python.png"/>
           <h3>Python</h3>
         </section>
       </div>
       <div class="col-4 col-6-medium col-12-small">
         <section class="box style1">
-          <img class="image" src="static/images/java.jpg"/>
+          <img class="image" src="../assets/images/java.jpg"/>
           <h3>Java</h3>
         </section>
       </div>
       <div class="col-4 col-6-medium col-12-small">
         <section class="box style1">
-          <img class="image" src="static/images/nginx.jpg"/>
+          <img class="image" src="../assets/images/nginx.jpg"/>
           <h3>Nginx</h3>
         </section>
       </div>
       <div class="col-4 col-6-medium col-12-small">
         <section class="box style1">
-          <img class="image" src="static/images/dotcore.png"/>
+          <img class="image" src="../assets/images/dotcore.png"/>
           <h3>Dotnet core</h3>
         </section>
       </div>
     </div>
   </div>
-    </div>
-  </article>
 </template>
 
 <script>
     import axios from 'axios';
     export default {
-      name: "Containers.vue",
+      name: "Containers",
       data() {
           return {
             containers: [],
@@ -123,8 +131,16 @@
                 })
             }
           },
-
-                }
+          startContainer: (id) => {
+            console.log(`hello Johan ${id}`)
+          },
+          stopContainer: (id) => {
+            console.log(`bye Johan ${id}`)
+          },
+          restartContainer: (id) => {
+            console.log(`again Johan ${id}`)
+          },
+        }
     }
 </script>
 
@@ -134,45 +150,33 @@
     width: 20%;
     height: 20%;
   }
-  table{
-    width:100%;
-    table-layout: fixed;
-  }
-  .tbl-header{
-    background-color: rgb(255,250,250);
-    margin-top: 50px;
-    margin-bottom: 0px;
-  }
-  .tbl-content{
-    height:300px;
-    overflow-x:auto;
-    margin-top: 0px;
-    background-color: rgb(255,255,255);
-    border: 1px solid #999999;
-  }
-  th{
-    padding: 20px 15px;
-    text-align: left;
-    font-weight: bold;
-    font-size: 24px;
-    color: #4682B4;
-    text-transform: uppercase;
-  }
-  td{
-    padding: 15px;
-    text-align: left;
-    vertical-align:middle;
-    font-weight: 300;
-    font-size: 16px;
-    color: #4682B4;
-    border-bottom: solid 1px #999999;
-  }
+
   /* The switch - the box around the slider */
   .switch {
     position: relative;
     display: inline-block;
     width: 60px;
     height: 34px;
+  }
+
+  .container_running {
+    background-color: #3CB371;
+  }
+
+  .container_running td, .container_running a  {
+    color: white;
+  }
+
+  .container_stopped {
+    background-color: #D3D3D3;
+  }
+
+  .container_stopped td, .container_stopped a  {
+    color: #778899;
+  }
+
+  .action-hovers:hover i {
+    cursor: pointer;
   }
 
   /* Hide default HTML checkbox */
