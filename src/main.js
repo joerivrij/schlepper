@@ -6,15 +6,15 @@ import router from './router'
 import store from './store'
 import axios from 'axios';
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
 Vue.http = Vue.prototype.$apiClient = axios;
 
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
-  components: { App },
+  render: h => h(App),
   router,
   store,
   template: '<App/>'
-}).$mount('#app')
+}).$mount('#app');
